@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.NFC" />
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
 
     <application
         android:allowBackup="true"
-        android:label="NFC Emulator"
+        android:icon="@mipmap/ic_launcher"
+        android:label="NFC Nexus"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:theme="@style/Theme.Material3_DayNight.NoActionBar"
+        tools:targetApi="31">
         
-        <activity 
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -22,16 +26,13 @@
         <service
             android:name=".MyHostApduService"
             android:exported="true"
-            android:description="@android:string/unknownName"
-            android:permission="android.permission.BIND_NFC_SERVICE">
+            android:permission="android.permission.BIND_CARD_EMULATION_SERVICE">
             <intent-filter>
                 <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
             </intent-filter>
-
             <meta-data
                 android:name="android.nfc.cardemulation.host_apdu_service"
-                android:resource="@xml/aid_list" />
+                android:resource="@xml/apdu_service" />
         </service>
-
     </application>
 </manifest>
