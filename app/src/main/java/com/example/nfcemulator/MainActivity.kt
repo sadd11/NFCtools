@@ -4,7 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-importimport android.graphics.Typeface
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -39,11 +39,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spinnerAdapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Тема MD3, которая сама поддерживает тёмный и светлый режимы Android
         setTheme(com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar)
         super.onCreate(savedInstanceState)
 
-        // Главный контейнер со скроллом, чтобы лог транзакций не уходил за экран
         val scrollView = ScrollView(this).apply {
             isFillViewport = true
         }
@@ -55,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         }
         scrollView.addView(rootLayout)
 
-        // Красивый заголовок
         val titleView = TextView(this).apply {
             text = "NFC Nexus"
             textSize = 30f
@@ -64,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         }
         rootLayout.addView(titleView)
 
-        // --- 1. ВИЗУАЛЬНАЯ СМАРТ-КАРТА (MD3 Expressive) ---
         visualCard = MaterialCardView(this).apply {
             radius = 48f
             strokeWidth = 0
@@ -72,7 +68,6 @@ class MainActivity : AppCompatActivity() {
             params.setMargins(0, 0, 0, 40)
             layoutParams = params
             
-            // Градиентный фон для карты
             val gradient = GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xFF3F51B5.toInt(), 0xFF00363A.toInt())
@@ -84,7 +79,6 @@ class MainActivity : AppCompatActivity() {
                 setPadding(48, 48, 48, 48)
             }
 
-            // Иконка импровизированного чипа
             val chipIcon = View(context).apply {
                 id = View.generateViewId()
                 val chipParams = RelativeLayout.LayoutParams(90, 70)
@@ -92,13 +86,12 @@ class MainActivity : AppCompatActivity() {
                 chipParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
                 layoutParams = chipParams
                 val chipBg = GradientDrawable()
-                chipBg.setColor(0xFFFFD700.toInt()) // Золотой чип
+                chipBg.setColor(0xFFFFD700.toInt())
                 chipBg.cornerRadius = 12f
                 background = chipBg
             }
             cardContent.addView(chipIcon)
 
-            // Текст статуса прямо на карте
             statusTextView = TextView(context).apply {
                 id = View.generateViewId()
                 text = "STATUS"
@@ -112,7 +105,6 @@ class MainActivity : AppCompatActivity() {
             }
             cardContent.addView(statusTextView)
 
-            // Название выбранной карты
             cardNameTextView = TextView(context).apply {
                 id = View.generateViewId()
                 text = "Имя карты"
@@ -126,11 +118,10 @@ class MainActivity : AppCompatActivity() {
             }
             cardContent.addView(cardNameTextView)
 
-            // UID карты внизу
             cardUidTextView = TextView(context).apply {
                 text = "UID: ----"
                 textSize = 14f
-                setTextColor(0xB3FFFFFF.toInt()) // Белый с прозрачностью
+                setTextColor(0xB3FFFFFF.toInt())
                 val uidParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
                 uidParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
                 uidParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT)
@@ -142,7 +133,6 @@ class MainActivity : AppCompatActivity() {
         }
         rootLayout.addView(visualCard)
 
-        // --- 2. ТУМБЛЕР АКТИВАЦИИ ---
         emuSwitch = MaterialSwitch(this).apply {
             text = "Режим эмуляции"
             textSize = 18f
@@ -157,7 +147,6 @@ class MainActivity : AppCompatActivity() {
         }
         rootLayout.addView(emuSwitch)
 
-        // --- 3. ВЫБОР И УДАЛЕНИЕ КАРТ ---
         val spinnerLabel = TextView(this).apply {
             text = "Активный профиль:"
             textSize = 14f
@@ -191,7 +180,6 @@ class MainActivity : AppCompatActivity() {
         }
         rowLayout.addView(cardsSpinner)
 
-        // Кнопка удаления карты в стиле MD3 Icon
         val deleteButton = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
             text = "Удалить"
             textSize = 12f
@@ -205,7 +193,6 @@ class MainActivity : AppCompatActivity() {
         rowLayout.addView(deleteButton)
         rootLayout.addView(rowLayout)
 
-        // --- 4. КНОПКА СКАНИРОВАНИЯ ---
         val scanButton = MaterialButton(this).apply {
             text = "Записать новую карту"
             textSize = 16f
@@ -220,7 +207,6 @@ class MainActivity : AppCompatActivity() {
         }
         rootLayout.addView(scanButton)
 
-        // --- 5. ЛОГ ТРАНЗАКЦИЙ ---
         val logLabel = TextView(this).apply {
             text = "Лог событий терминала:"
             textSize = 14f
@@ -275,7 +261,6 @@ class MainActivity : AppCompatActivity() {
         val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
         val activeName = sharedPrefs.getString("selected_card_name", "Пусто") ?: "Пусто"
         
-        // Достаем UID для отображения на карте
         val savedCardsString = sharedPrefs.getString("cards_list_v2", "Стандартный пропуск=F0010203040506") ?: "Стандартный пропуск=F0010203040506"
         var activeUid = "----"
         for (pair in savedCardsString.split(",")) {
@@ -294,18 +279,15 @@ class MainActivity : AppCompatActivity() {
 
         if (emuSwitch.isChecked) {
             statusTextView.text = "АКТИВЕН"
-            // Яркий зеленый/бирюзовый градиент в режиме работы
             gradient.setOrientation(GradientDrawable.Orientation.TL_BR)
             gradient.setColors(intArrayOf(0xFF00BFA5.toInt(), 0xFF00675B.toInt()))
         } else {
             statusTextView.text = "ВЫКЛЮЧЕН"
-            // Сдержанный серый/синий градиент в простое
             gradient.setOrientation(GradientDrawable.Orientation.TL_BR)
             gradient.setColors(intArrayOf(0xFF78909C.toInt(), 0xFF37474F.toInt()))
         }
         visualCard.background = gradient
         
-        // Обновляем лог из истории
         val history = sharedPrefs.getString("terminal_logs", "Ожидание...")
         logTextView.text = history
     }
@@ -322,7 +304,6 @@ class MainActivity : AppCompatActivity() {
         val newList = savedCardsString.split(",").filter { !it.startsWith("$currentSelected=") }
         sharedPrefs.edit().putString("cards_list_v2", newList.joinToString(",")).apply()
         
-        // Выбираем первую оставшуюся карту
         val firstRemaining = newList[0].split("=")[0]
         sharedPrefs.edit().putString("selected_card_name", firstRemaining).apply()
 
@@ -333,7 +314,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
-        updateUIState() // Чтобы обновить логи при возврате на экран
+        updateUIState()
     }
 
     override fun onPause() {
@@ -353,7 +334,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // --- МЕНЮ ПЕРЕИМЕНОВАНИЯ ПРИ СКАНИРОВАНИИ ---
     private fun showRenameDialog(uidHex: String) {
         val inputLayout = TextInputLayout(this)
         val input = TextInputEditText(this).apply {
