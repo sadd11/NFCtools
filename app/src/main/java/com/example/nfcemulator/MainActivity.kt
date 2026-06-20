@@ -3,10 +3,12 @@ package com.example.nfcemulator
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -27,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spinnerAdapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Устанавливаем тему Material 3 Expressive (светлая без стандартного ActionBar)
+        // Устанавливаем тему Material 3 Expressive
         setTheme(com.google.android.material.R.style.Theme_Material3_Light_NoActionBar)
         super.onCreate(savedInstanceState)
 
@@ -35,14 +37,14 @@ class MainActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(64, 80, 64, 64) // Выразительные отступы MD3 Expressive
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            backgroundColor = 0xFFF7F9FF.toInt() // Мягкий фон
+            setBackgroundColor(0xFFF7F9FF.toInt()) // ИСПРАВЛЕНО: Правильный метод установки фона
         }
 
         // Заголовок приложения
         val titleView = TextView(this).apply {
             text = "NFC Emulator"
             textSize = 28f
-            fontWeight = android.graphics.Typeface.BOLD
+            setTypeface(null, Typeface.BOLD) // ИСПРАВЛЕНО: Правильная установка жирного шрифта
             setTextColor(0xFF1A1C1E.toInt())
             setPadding(0, 0, 0, 48)
         }
@@ -53,10 +55,11 @@ class MainActivity : AppCompatActivity() {
             radius = 64f // Крупное закругление углов в стиле Expressive
             setCardBackgroundColor(0xFFDFE2EB.toInt())
             strokeWidth = 0
-            setPadding(48, 48, 48, 48)
+            
             val cardLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
+                setPadding(48, 48, 48, 48)
             }
             
             statusTextView = TextView(context).apply {
@@ -116,9 +119,9 @@ class MainActivity : AppCompatActivity() {
             layoutParams = params
             setPadding(24, 24, 24, 24)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val selected = cardList[position]
-                    val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
+                    val sharedPrefs = context.getSharedPreferences("NfcData", Context.MODE_PRIVATE)
                     sharedPrefs.edit().putString("selected_card", selected).apply()
                     Toast.makeText(context, "Выбрано: $selected", Toast.LENGTH_SHORT).show()
                 }
@@ -140,13 +143,12 @@ class MainActivity : AppCompatActivity() {
     private fun loadSavedCards() {
         val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
         
-        // Получаем сохраненный список карт (строка через запятую)
+        // Получаем сохраненный список карт
         val savedCardsString = sharedPrefs.getString("all_cards", "Стандартная карта") ?: "Стандартная карта"
         cardList.clear()
         cardList.addAll(savedCardsString.split(","))
 
         spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, cardList)
-        spinnerAdapter.setDropDownViewResource(android.widget.SimpleCursorAdapter.IGNORE_ITEM_VIEW_TYPE)
         cardsSpinner.adapter = spinnerAdapter
 
         // Восстанавливаем выбранную карту
