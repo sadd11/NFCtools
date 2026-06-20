@@ -64,7 +64,6 @@ class MyHostApduService : HostApduService() {
     private fun addLog(message: String) {
         val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
         val currentLogs = sharedPrefs.getString("terminal_logs", "") ?: ""
-        // Храним только последние 5 строчек, чтобы не засорять память
         val logLines = currentLogs.split("\n").takeLast(5).toMutableList()
         logLines.add(message)
         sharedPrefs.edit().putString("terminal_logs", logLines.joinToString("\n")).apply()
