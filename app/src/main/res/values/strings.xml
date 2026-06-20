@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NFC Nexus</string>
+    <string name="serv_desc">NFC Emulator Service</string>
+    <string name="aid_desc">NFC Emulator AID Group</string>
+</resources>
