@@ -1,5 +1,6 @@
 package com.example.nfcemulator
 
+import android.content.Context
 import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
 import android.util.Log
@@ -21,9 +22,13 @@ class MyHostApduService : HostApduService() {
         Log.d(TAG, "Получена команда APDU: $hexCommand")
 
         return if (isSelectAidCommand(commandApdu)) {
-            Log.d(TAG, "Терминал выбрал наш AID. Отправляем секретные данные...")
+            Log.d(TAG, "Терминал выбрал наш AID. Отправляем сохраненные данные карты...")
             
-            val payload = "Hello Reader".toByteArray(Charsets.UTF_8)
+            // Читаем сохраненные данные из памяти устройства
+            val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
+            val savedPayload = sharedPrefs.getString("payload", "Hello Reader") ?: "Hello Reader"
+            
+            val payload = savedPayload.toByteArray(Charsets.UTF_8)
             payload + STATUS_SUCCESS
         } else {
             STATUS_SUCCESS
