@@ -14,6 +14,15 @@ class MyHostApduService : HostApduService() {
     }
 
     override fun processCommandApdu(commandApdu: ByteArray?, extras: Bundle?): ByteArray {
+        val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
+        
+        // 1. Проверяем, включен ли тумблер эмуляции
+        val isEnabled = sharedPrefs.getBoolean("emu_active", false)
+        if (!isEnabled) {
+            Log.d(TAG, "Эмуляция отключена пользователем в меню. Игнорируем.")
+            return STATUS_FAILED
+        }
+
         if (commandApdu == null) {
             return STATUS_FAILED
         }
@@ -22,13 +31,12 @@ class MyHostApduService : HostApduService() {
         Log.d(TAG, "Получена команда APDU: $hexCommand")
 
         return if (isSelectAidCommand(commandApdu)) {
-            Log.d(TAG, "Терминал выбрал наш AID. Отправляем сохраненные данные карты...")
+            Log.d(TAG, "Терминал выбрал наш AID. Отправляем данные...")
             
-            // Читаем сохраненные данные из памяти устройства
-            val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
-            val savedPayload = sharedPrefs.getString("payload", "Hello Reader") ?: "Hello Reader"
+            // 2. Достаем имя выбранной из списка карты
+            val selectedCardData = sharedPrefs.getString("selected_card", "Стандартная карта") ?: "Стандартная карта"
             
-            val payload = savedPayload.toByteArray(Charsets.UTF_8)
+            val payload = selectedCardData.toByteArray(Charsets.UTF_8)
             payload + STATUS_SUCCESS
         } else {
             STATUS_SUCCESS
@@ -36,7 +44,7 @@ class MyHostApduService : HostApduService() {
     }
 
     override fun onDeactivated(reason: Int) {
-        Log.d(TAG, "Связь потеряна. Причина: $reason")
+        Log.d(TAG, "Связь с терминалом потеряна. Причина: $reason")
     }
 
     private fun isSelectAidCommand(commandApdu: ByteArray): Boolean {
