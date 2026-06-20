@@ -16,14 +16,13 @@ workflows:
         - pattern: 'main'
         - pattern: 'master'
 
-scripts:
+    scripts:
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
       - name: Generate Gradle Wrapper
         script: |
-          # Codemagic сам установит правильный gradle и создаст все файлы wrapper'а
           gradle wrapper --gradle-version 8.2
 
       - name: Build Android Debug APK
@@ -37,7 +36,7 @@ scripts:
     publishing:
       email:
         recipients:
-          - your_email@example.com # Не забудь поменять на свою почту!
+          - your_email@example.com
         notify:
           success: true
           failure: true
