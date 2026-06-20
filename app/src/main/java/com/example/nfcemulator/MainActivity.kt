@@ -22,10 +22,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Создаем простой интерфейс программно, чтобы не усложнять проект файлами layout
+        // Создаем простой интерфейс программно
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            padding = 50
+            setPadding(50, 50, 50, 50) // ИСПРАВЛЕНО: Правильный вызов отступов
             gravity = android.view.Gravity.CENTER
         }
 
@@ -75,19 +75,13 @@ class MainActivity : AppCompatActivity() {
         nfcAdapter?.disableForegroundDispatch(this)
     }
 
-    // Вызывается, когда мы подносим карту к телефону при открытом приложении
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (isScanningMode && NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
             val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
             if (tag != null) {
-                // Получаем физический UID карты для информации
                 val uidBytes = tag.id
                 val uidHex = uidBytes.joinToString("") { String.format("%02X", it) }
-                
-                // В реальных картах данные лежат в блоках, но для теста запишем строковый payload
-                // Если карта поддерживает чтение NDEF или кастомных данных, их можно извлечь тут.
-                // Для примера просто сохраним UID как текстовые данные для эмуляции:
                 val dataToSave = "Card_UID_$uidHex"
 
                 val sharedPrefs = getSharedPreferences("NfcData", Context.MODE_PRIVATE)
